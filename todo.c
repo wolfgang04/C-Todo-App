@@ -10,17 +10,29 @@ typedef struct item
 } item;
 
 // prototypes
-item *addItem(item *prev);
+item *addItem(item *prev, int *itemCount);
 void printItems(item *currItem);
 int sizeOfArray(char *arr[]);
+void removeItem(item *head, int *itemCount);
 
 int main(void)
 {
   // declare all variables
   char *menuOptions[50] = {"Display Items", "Add Items", "Remove Item", NULL};
   int sizeOfOpt = sizeOfArray(menuOptions); // sets the size of the options array
+  item *head = NULL, *prev = NULL;
   int userChoice;
-  item *newItem = NULL, *prev = NULL, *ptr;
+  int *itemCountPtr;
+  void *ptr;
+
+  // declares itemCountPtr for removing of items;
+  itemCountPtr = (int *)malloc(sizeof(int));
+  if (itemCountPtr == NULL)
+  {
+    printf("Allocation failed!\n");
+    return 1;
+  }
+  *itemCountPtr = 0;
 
   // prints the menu
   do
@@ -41,12 +53,16 @@ int main(void)
     switch (userChoice)
     {
     case 1:
-      printItems(newItem);
+      printItems(head);
 
       break;
     case 2:
-      newItem = addItem(prev);
-      prev = newItem;
+      head = addItem(prev, itemCountPtr);
+      prev = head;
+
+      break;
+    case 3:
+      removeItem(head, itemCountPtr);
 
       break;
     default:
@@ -56,6 +72,46 @@ int main(void)
     }
 
   } while (userChoice != 0);
+}
+
+void removeItem(item *head, int *itemCount)
+{
+  item *current = head;
+  item *previous = NULL;
+  int choice, curr = 0;
+
+  do
+  {
+    printf("Which item do you wish to remove? ");
+    scanf("%d", &choice);
+
+    if (choice > *itemCount)
+    {
+      printf("Item removal failed! Choice doesn't exist in list\n");
+    }
+  } while (choice > *itemCount && choice < 0);
+
+  while (current != NULL)
+  {
+    curr += 1;
+    if (curr == choice)
+    {
+      if (previous != NULL)
+      {
+        previous->next = current->next;
+      }
+      else
+      {
+        head = current->next;
+      }
+
+      free(current);
+      return;
+    }
+
+    previous = current;
+    current = current->next;
+  }
 }
 
 void printItems(item *currItem)
@@ -71,7 +127,7 @@ void printItems(item *currItem)
   printf("\n");
 }
 
-item *addItem(item *prev)
+item *addItem(item *prev, int *itemCount)
 {
   char *todoEntry = (char *)malloc(101 * sizeof(char));
   item *todoItem = (item *)malloc(sizeof(item));
@@ -82,7 +138,7 @@ item *addItem(item *prev)
   } // handle allocation failure
 
   printf("\nWhat would you like to do? ");
-  scanf("%s", todoEntry);
+  scanf(" %100[^\n]", todoEntry);
 
   // todoItem->desc = todoEntry;
   todoItem->desc = (char *)malloc(strlen(todoEntry) + 1);
@@ -102,6 +158,7 @@ item *addItem(item *prev)
     todoItem->next = prev;
   }
 
+  *itemCount += 1;
   printf("Item added!\n");
 
   free(todoEntry);
