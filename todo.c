@@ -11,7 +11,7 @@ typedef struct item
 
 // prototypes
 item *addItem(item *prev, int *itemCount);
-void printItems(item *currItem);
+void printItems(item *currItem, int itemCount);
 int sizeOfArray(char *arr[]);
 void removeItem(item *head, int *itemCount);
 
@@ -53,7 +53,7 @@ int main(void)
     switch (userChoice)
     {
     case 1:
-      printItems(head);
+      printItems(head, *itemCountPtr);
 
       break;
     case 2:
@@ -114,8 +114,14 @@ void removeItem(item *head, int *itemCount)
   }
 }
 
-void printItems(item *currItem)
+void printItems(item *currItem, int itemCount)
 {
+  if (itemCount == 0)
+  {
+    printf("It seems you currently have nothing to do. Make your day productive by adding some.\n\n");
+    return;
+  }
+
   item *ptr = currItem;
 
   for (int i = 1; ptr != NULL; i++)
